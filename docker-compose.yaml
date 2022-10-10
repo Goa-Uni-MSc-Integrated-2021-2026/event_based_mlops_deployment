@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    volumes: 
+      - .:/app/
+    ports:
+      - 8000:8000
+    networks:
+      - stable_diffusion
+  
+networks:
+  stable_diffusion:
+    driver: bridge
