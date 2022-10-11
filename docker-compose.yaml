@@ -7,6 +7,17 @@ services:
       - 8000:8000
     networks:
       - stable_diffusion
+  db:
+    image: mysql
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      - MYSQL_USER: "${MYSQL_USER}"
+      - MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    networks:
+      - stable_diffusion
   
 networks:
   stable_diffusion:
