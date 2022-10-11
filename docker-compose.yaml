@@ -15,16 +15,13 @@ services:
     image: mysql
     restart: always
     volumes:
-      - dbdata:/var/lib/mysql
+      - .dbdata:/var/lib/mysql
     ports:
       - 3306:3306
     env_file:
       - .env
     networks:
       - stable_diffusion
-
-volumes:
-  dbdata:
 
 networks:
   stable_diffusion:
