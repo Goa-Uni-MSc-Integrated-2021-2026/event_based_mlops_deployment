@@ -44,3 +44,6 @@ services:
 networks:
   stable_diffusion:
     driver: bridge
+
+volumes:
+  
