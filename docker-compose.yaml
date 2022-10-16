@@ -22,13 +22,19 @@ services:
       - .dbdata:/var/lib/mysql
     ports:
       - 3306:3306
-    env_file:
-      - .env
+    environment:
+      - MYSQL_DATABASE=admin
+      - MYSQL_USER=alvyn
+      - MYSQL_PASSWORD=alvyn
+      - MYSQL_ROOT_PASSWORD=abranches
     networks:
       - stable_diffusion
   
   redis:
     image: redis
+    restart: always
+    volumes:
+      - .redisdata:/data
     ports:
       - 6379:6379
     networks:
@@ -36,14 +42,29 @@ services:
   
   mongodb:
     image: mongo
+    restart: always
+    volumes:
+      - .mongodbdata:/data/db
     ports:
       - 27017:27017
+    networks:
+      - stable_diffusion
+  
+  rabbitmq:
+    hostname: rabbit
+    image: rabbitmq:3.8-management
+    volumes:
+      - .rabbitmqdata/data/:/var/lib/rabbitmq/
+      - .rabbitmqdata/log/:/var/log/rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=alvyn
+      - RABBITMQ_DEFAULT_PASS=alvyn
     networks:
       - stable_diffusion
 
 networks:
   stable_diffusion:
     driver: bridge
-
-volumes:
-  
