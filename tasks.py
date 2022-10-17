@@ -9,7 +9,7 @@ rabbit_pass: str = os.environ.get('RABBITMQ_DEFAULT_PASS')
 logger = get_task_logger(__name__)
 app = Celery(
     'tasks', 
-    broker=f'amqp://{rabbit_user}:{rabbit_pass}@rabbit:5672/0', 
+    broker=f'amqp://{rabbit_user}:{rabbit_pass}@rabbit:5672', 
     backend='redis://redis:6379'
 )
 
@@ -19,3 +19,4 @@ def add(x, y):
     time.sleep(5)
     logger.info('Work Finished ')
     return x + y
+

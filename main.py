@@ -7,3 +7,4 @@ app = FastAPI()
 @app.get("/")
 def index():
     return JSONResponse({"status": "ok"}, 200)
+
