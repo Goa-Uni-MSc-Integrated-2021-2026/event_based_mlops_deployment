@@ -3,8 +3,8 @@ import time
 from celery import Celery
 from celery.utils.log import get_task_logger
 
-rabbit_user: str = os.environ.get('RABBITMQ_DEFAULT_USER')
-rabbit_pass: str = os.environ.get('RABBITMQ_DEFAULT_PASS')
+rabbit_user: str = os.environ.get("RABBITMQ_DEFAULT_USER")
+rabbit_pass: str = os.environ.get("RABBITMQ_DEFAULT_PASS")
 
 logger = get_task_logger(__name__)
 app = Celery(
