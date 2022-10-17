@@ -83,6 +83,41 @@ services:
       - .env
     networks:
       - stable_diffusion
+  
+  elasticsearch:
+    image: elasticsearch:8.4.3
+    container_name: elasticsearch
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - stable_diffusion
+  
+  kibana:
+    image: kibana:8.4.3
+    container_name: kibana
+    ports:
+      - 5601:5601
+    networks:
+      - stable_diffusion
+  
+  logstash:
+    image: logstash:8.4.3
+    container_name: logstash
+    ports:
+      - 5959
+    volumes:
+      - type: bind
+        source: ./logstash_pipeline/
+        target: /usr/share/logstash/pipeline
+        read_only: true
+    networks:
+      - stable_diffusion
 
 networks:
   stable_diffusion:
