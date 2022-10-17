@@ -74,12 +74,14 @@ services:
   
   rabbitmq:
     hostname: rabbit
+    restart: always
     image: rabbitmq:3.8-management
     volumes:
       - .rabbitmqdata/data/:/var/lib/rabbitmq/
       - .rabbitmqdata/log/:/var/log/rabbitmq
     ports:
-      - 5672:5672 # AMQP connection
+      # - 5672:5672 # AMQP connection
+      - 5672
       - 15672:15672 # HTTP connection
       # - 15692:15692 # HTTP prometheus connection
       # - 25672:25672 # Clustering connection
