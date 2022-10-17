@@ -1,0 +1,4 @@
+celery==5.2.7
+python-multipart==0.0.5
+redis==4.3.4
+uvicorn==0.18.3
