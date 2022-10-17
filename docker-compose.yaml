@@ -44,11 +44,8 @@ services:
       - .dbdata:/var/lib/mysql
     ports:
       - 3306:3306
-    environment:
-      - MYSQL_DATABASE=admin
-      - MYSQL_USER=alvyn
-      - MYSQL_PASSWORD=alvyn
-      - MYSQL_ROOT_PASSWORD=abranches
+    env_file:
+      - .env
     networks:
       - stable_diffusion
   
@@ -73,21 +70,19 @@ services:
       - stable_diffusion
   
   rabbitmq:
+    image: rabbitmq:3.8-management
     hostname: rabbit
     restart: always
-    image: rabbitmq:3.8-management
     volumes:
       - .rabbitmqdata/data/:/var/lib/rabbitmq/
       - .rabbitmqdata/log/:/var/log/rabbitmq
     ports:
-      # - 5672:5672 # AMQP connection
-      - 5672
+      - 5672 # AMQP connection
       - 15672:15672 # HTTP connection
-      # - 15692:15692 # HTTP prometheus connection
-      # - 25672:25672 # Clustering connection
-    environment:
-      - RABBITMQ_DEFAULT_USER=alvyn
-      - RABBITMQ_DEFAULT_PASS=alvyn
+      # - 15692 # HTTP prometheus connection
+      # - 25672 # Clustering connection
+    env_file:
+      - .env
     networks:
       - stable_diffusion
 

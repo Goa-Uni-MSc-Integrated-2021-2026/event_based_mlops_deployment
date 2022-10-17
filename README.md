@@ -1,1 +1,1 @@
-# stable_diffusion_deployment
+# Stable Diffusion Deployment
