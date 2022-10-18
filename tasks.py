@@ -6,16 +6,16 @@ from celery.utils.log import get_task_logger
 rabbit_user: str = os.environ.get("RABBITMQ_DEFAULT_USER")
 rabbit_pass: str = os.environ.get("RABBITMQ_DEFAULT_PASS")
 
-mongodb_user: str = ""
-mongodb_pass: str = ""
-mongodb_uri: str = f"{mongodb_user}:{mongodb_pass}@" if len(mongodb_user) > 0 and len(mongodb_pass) > 0 else ""
+mongo_user: str = os.environ.get("MONGO_USER", "")
+mongo_pass: str = os.environ.get("MONGO_PASS", "")
+mongo_uri: str = f"{mongo_user}:{mongo_pass}@" if len(mongo_user) > 0 and len(mongo_pass) > 0 else ""
 
 
 logger = get_task_logger(__name__)
 app = Celery(
     "tasks", 
     broker=f"amqp://{rabbit_user}:{rabbit_pass}@rabbit:5672", 
-    backend=f"mongodb://{mongodb_uri}mongo:27017"
+    backend=f"mongodb://{mongo_uri}mongo:27017"
 )
 
 @app.task
