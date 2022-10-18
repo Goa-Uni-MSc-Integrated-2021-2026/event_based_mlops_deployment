@@ -9,6 +9,7 @@ app = FastAPI()
 def index():
     return JSONResponse({"status": "ok"}, 200)
 
+@app.post("/status")
 def task_status(request: Request):
     try:
         data = request.json()
@@ -20,7 +21,16 @@ def task_status(request: Request):
     except Exception:
         return JSONResponse({"status": "invalid json body"}, 400)
 
-def create_task(request: Request):
+@app.post("/task")
+def create_project(request: Request):
+    try:
+        data = request.json()
+        return JSONResponse({"status": "ok"}, 200)
+    except Exception:
+        return JSONResponse({"status": "invalid json body"}, 400)
+
+@app.post("/user")
+def create_user(request: Request):
     try:
         data = request.json()
         return JSONResponse({"status": "ok"}, 200)
