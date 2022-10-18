@@ -19,3 +19,10 @@ def task_status(request: Request):
         return JSONResponse({"taskStatus": res.status}, 200)
     except Exception:
         return JSONResponse({"status": "invalid json body"}, 400)
+
+def create_task(request: Request):
+    try:
+        data = request.json()
+        return JSONResponse({"status": "ok"}, 200)
+    except Exception:
+        return JSONResponse({"status": "invalid json body"}, 400)
