@@ -28,8 +28,25 @@ services:
       dockerfile: worker.Dockerfile
     volumes: 
       - .:/app/
+    command: celery -A tasks worker --loglevel=INFO
+    env_file:
+      - .env
+    networks:
+      - stable_diffusion
+    depends_on:
+      # - db
+      - redis
+      - rabbitmq
+  
+  flower:
+    build:
+      context: .
+      dockerfile: worker.Dockerfile
+    volumes: 
+      - .:/app/
     ports:
       - 5555:5555
+    command: celery -A tasks flower --port=5555
     env_file:
       - .env
     networks:
