@@ -14,11 +14,11 @@ services:
     networks:
       - stable_diffusion
     depends_on:
-      - db
+      # - db
       - redis
       - worker
       - rabbitmq
-      # - mongodb
+      - mongodb
       # - logstash
       # - elasticsearch
   
@@ -28,26 +28,28 @@ services:
       dockerfile: worker.Dockerfile
     volumes: 
       - .:/app/
+    ports:
+      - 5555:5555
     env_file:
       - .env
     networks:
       - stable_diffusion
     depends_on:
-      - db
+      # - db
       - redis
       - rabbitmq
   
-  db:
-    image: mysql:8.0.31
-    restart: always
-    volumes:
-      - .dbdata:/var/lib/mysql
-    ports:
-      - 3306:3306
-    env_file:
-      - .env
-    networks:
-      - stable_diffusion
+  # db:
+  #   image: mysql:8.0.31
+  #   restart: always
+  #   volumes:
+  #     - .dbdata:/var/lib/mysql
+  #   ports:
+  #     - 3306:3306
+  #   env_file:
+  #     - .env
+  #   networks:
+  #     - stable_diffusion
   
   redis:
     image: redis:7.0.5
@@ -59,25 +61,26 @@ services:
     networks:
       - stable_diffusion
   
-  # mongodb:
-  #   image: mongo:6.0.2
-  #   restart: always
-  #   volumes:
-  #     - .mongodbdata:/data/db
-  #   ports:
-  #     - 27017:27017
-  #   networks:
-  #     - stable_diffusion
+  mongodb:
+    hostname: mongo
+    image: mongo:6.0.2
+    restart: always
+    volumes:
+      - .mongodbdata:/data/db
+    ports:
+      - 27017:27017
+    networks:
+      - stable_diffusion
   
   rabbitmq:
-    image: rabbitmq:3.11.1-management
+    image: rabbitmq:3.8-management
     hostname: rabbit
     restart: always
     volumes:
       - .rabbitmqdata/data/:/var/lib/rabbitmq/
       - .rabbitmqdata/log/:/var/log/rabbitmq
     ports:
-      - 5672 # AMQP connection
+      - 5672:5672 # AMQP connection
       - 15672:15672 # HTTP connection
       # - 15692 # HTTP prometheus connection
       # - 25672 # Clustering connection
