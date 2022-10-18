@@ -6,4 +6,4 @@ RUN pip install -r requirements.txt
 WORKDIR /app
 COPY tasks.py tasks.py
 
-CMD [ "celery", "-A", "tasks", "worker", "flower", "--loglevel=INFO" ]
+# CMD [ "celery", "-A", "tasks", "worker", "flower", "--loglevel=INFO" ]
