@@ -5,10 +5,10 @@ services:
     build:
       context: .
       dockerfile: app.Dockerfile
-    hostname: app
+    # hostname: app
     restart: always
     volumes:
-      - .:/app/
+      - .:/app/:rw
     ports:
       - 8000:8000
     env_file:
@@ -31,7 +31,7 @@ services:
     hostname: worker
     restart: always
     volumes: 
-      - .:/app/
+      - .:/app/:rw
     command: celery -A tasks worker --loglevel=INFO
     env_file:
       - .env
@@ -49,10 +49,10 @@ services:
     hostname: flower
     restart: always
     volumes: 
-      - .:/app/
+      - .:/app/:rw
     ports:
-      - 5555:5555
-    command: celery -A tasks flower --port=5555
+      - 55555:55555
+    command: celery -A tasks flower --port=55555
     env_file:
       - .env
     networks:
@@ -67,7 +67,7 @@ services:
   #   hostname: db
   #   restart: always
   #   volumes:
-  #     - .dbdata:/var/lib/mysql
+  #     - .dbdata:/var/lib/mysql:rw
   #   ports:
   #     - 3306:3306
   #   env_file:
@@ -80,7 +80,7 @@ services:
     hostname: redis
     restart: always
     volumes:
-      - .redisdata:/data
+      - .redisdata:/data:rw
     ports:
       - 6379:6379
     networks:
@@ -91,7 +91,8 @@ services:
     hostname: mongo
     restart: always
     volumes:
-      - .mongodbdata:/data/db
+      - .mongodbdata/db:/data/db:rw
+      - .mongodbdata/data:/var/lib/mongodb/data:rw
     ports:
       - 27017:27017
     networks:
@@ -102,8 +103,8 @@ services:
     hostname: rabbit
     restart: always
     volumes:
-      - .rabbitmqdata/data/:/var/lib/rabbitmq/
-      - .rabbitmqdata/log/:/var/log/rabbitmq
+      - .rabbitmqdata/data/:/var/lib/rabbitmq/:rw
+      - .rabbitmqdata/log/:/var/log/rabbitmq:rw
     ports:
       - 5672:5672 # AMQP connection
       - 15672:15672 # HTTP connection
@@ -161,14 +162,16 @@ services:
     hostname: server
     restart: always
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf:rw
     ports:
-      - 8080:80 # HTTP
+      - 80:80 # HTTP
       # - 8088:443 # HTTPS
     depends_on:
       - app
       - flower
       - rabbitmq
+    networks:
+      - stable_diffusion
 
 networks:
   stable_diffusion:

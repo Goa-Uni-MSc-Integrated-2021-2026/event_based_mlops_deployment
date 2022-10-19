@@ -1,2 +1,5 @@
+# Python Cache Files
+__pycache__
+
 # Volumes
 .*data
