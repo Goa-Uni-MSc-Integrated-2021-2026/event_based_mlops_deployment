@@ -25,10 +25,10 @@ def task_status(request: Request):
 def create_project(request: Request):
     try:
         data = request.json()
-        if "userID" not in data:
-            return JSONResponse({"status": "specify userID in json body"}, 400)
-        if "projectName" not in data:
-            return JSONResponse({"status": "specify projectName in json body"}, 400)
+        if "username" not in data:
+            return JSONResponse({"status": "specify username in json body"}, 400)
+        if "projectname" not in data:
+            return JSONResponse({"status": "specify projectname in json body"}, 400)
         return JSONResponse({"status": "ok"}, 200)
     except Exception:
         return JSONResponse({"status": "invalid json body"}, 400)
@@ -37,6 +37,8 @@ def create_project(request: Request):
 def create_user(request: Request):
     try:
         data = request.json()
+        if "username" not in data:
+            return JSONResponse({"status": "specify username in json body"}, 400)
         return JSONResponse({"status": "ok"}, 200)
     except Exception:
         return JSONResponse({"status": "invalid json body"}, 400)
