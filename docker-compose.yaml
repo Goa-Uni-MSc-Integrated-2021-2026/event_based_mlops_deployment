@@ -84,6 +84,8 @@ services:
       - .redisdata:/data:rw
     ports:
       - 6379:6379
+    env_file:
+      - .env
     networks:
       - stable_diffusion
   
@@ -96,6 +98,8 @@ services:
       - .mongodbdata/data:/var/lib/mongodb/data:rw
     ports:
       - 27017:27017
+    env_file:
+      - .env
     networks:
       - stable_diffusion
   
