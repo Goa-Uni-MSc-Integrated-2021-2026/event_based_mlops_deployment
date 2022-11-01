@@ -15,13 +15,13 @@ logger = get_task_logger(__name__)
 app = Celery(
     "tasks", 
     broker=f"amqp://{rabbit_user}:{rabbit_pass}@rabbit:5672", 
-    backend=f"mongodb://{mongo_uri}mongo:27017"
+    backend=f"redis://redis:6379"
 )
 
 @app.task
-def add(x: int | float, y: int | float) -> int | float:
+def add(sleep_time: int | float, x: int | float, y: int | float) -> int | float:
     logger.info('Got Request - Starting work ')
-    time.sleep(5)
+    time.sleep(sleep_time)
     logger.info('Work Finished ')
     return x + y
 
