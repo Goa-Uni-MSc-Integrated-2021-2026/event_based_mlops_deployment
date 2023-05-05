@@ -1,4 +1,4 @@
 # Event Base MLOps Deployment
 
 
-This is a template file. 
+This is a template repo. 
