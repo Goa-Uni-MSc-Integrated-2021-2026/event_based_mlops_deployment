@@ -10,20 +10,13 @@ services:
     volumes:
       - .:/app/:rw
     ports:
-      - 8000:8000
+      - 80:8000
     env_file:
       - .env
-    networks:
-      - stable_diffusion
     depends_on:
-      # - db
       - redis
       - worker
       - rabbitmq
-      - mongodb
-      # - logstash
-      # - kibana
-      # - elasticsearch
   
   worker:
     build:
@@ -36,10 +29,7 @@ services:
     command: celery -A tasks worker --loglevel=INFO
     env_file:
       - .env
-    networks:
-      - stable_diffusion
     depends_on:
-      # - db
       - redis
       - rabbitmq
   
@@ -52,29 +42,13 @@ services:
     volumes: 
       - .:/app/:rw
     ports:
-      - 55555:55555
-    command: celery -A tasks flower --port=55555
+      - 5555:5555
+    command: celery -A tasks flower --port=5555
     env_file:
       - .env
-    networks:
-      - stable_diffusion
     depends_on:
-      # - db
       - redis
       - rabbitmq
-  
-  # db:
-  #   image: mysql:8.0.31
-  #   hostname: db
-  #   restart: always
-  #   volumes:
-  #     - .dbdata:/var/lib/mysql:rw
-  #   ports:
-  #     - 3306:3306
-  #   env_file:
-  #     - .env
-  #   networks:
-  #     - stable_diffusion
   
   redis:
     image: redis:7.0.5
@@ -86,22 +60,6 @@ services:
       - 6379:6379
     env_file:
       - .env
-    networks:
-      - stable_diffusion
-  
-  mongodb:
-    image: mongo:6.0.2
-    hostname: mongo
-    restart: always
-    volumes:
-      - .mongodbdata/db:/data/db:rw
-      - .mongodbdata/data:/var/lib/mongodb/data:rw
-    ports:
-      - 27017:27017
-    env_file:
-      - .env
-    networks:
-      - stable_diffusion
   
   rabbitmq:
     image: rabbitmq:3.8-management
@@ -117,51 +75,3 @@ services:
       # - 25672 # Clustering connection
     env_file:
       - .env
-    networks:
-      - stable_diffusion
-  
-  # elasticsearch:
-  #   image: elasticsearch:8.4.3
-  #   hostname: elasticsearch
-  #   restart: always
-  #   ports:
-  #     - 9200:9200
-  #   environment:
-  #     - discovery.type=single-node
-  #   ulimits:
-  #     memlock:
-  #       soft: -1
-  #       hard: -1
-  #   networks:
-  #     - stable_diffusion
-  
-  # kibana:
-  #   image: kibana:8.4.3
-  #   hostname: kibana
-  #   restart: always
-  #   ports:
-  #     - 5601:5601
-  #   networks:
-  #     - stable_diffusion
-  #   depends_on:
-  #     - elasticsearch
-  
-  # logstash:
-  #   image: logstash:8.4.3
-  #   hostname: logstash
-  #   restart: always
-  #   volumes:
-  #     - type: bind
-  #       source: ./logstash_pipeline/
-  #       target: /usr/share/logstash/pipeline
-  #       read_only: true
-  #   ports:
-  #     - 5959
-  #   networks:
-  #     - stable_diffusion
-  #   depends_on:
-  #     - elasticsearch
-
-networks:
-  stable_diffusion:
-    driver: bridge

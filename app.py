@@ -1,77 +1,90 @@
-import os
 import random
+from typing import Optional
+from pydantic import BaseModel
+from datetime import datetime as dt
 from fastapi import FastAPI, Request
 from celery.result import AsyncResult
 from fastapi.responses import JSONResponse
+from fastapi.background import BackgroundTasks
+from sqlmodel import SQLModel, Field, create_engine, Session, select
 from tasks import add
 
 app = FastAPI()
+engine = create_engine("sqlite://")
+
+
+class Transaction(SQLModel, table=True):
+    id: int = Field(primary_key=True)
+    taskID: str
+    amount: float
+    x: float
+    y: float
+    time: dt = dt.now()
+
+
+class Data(BaseModel):
+    amount: Optional[int | float] = random.randint(1, 25)
+    x: Optional[int | float] = random.randint(0, 100000000)
+    y: Optional[int | float] = random.randint(0, 100000000)
+
+
+def insert_transaction(
+    taskID: str, amount: int | float, x: int | float, y: int | float, time: dt
+):
+    with Session(engine) as session:
+        trans = Transaction(taskID=taskID, amount=amount, x=x, y=y, time=time)
+        session.add(trans)
+        session.commit()
+        session.close()
+
+
+async def read_transactions():
+    with Session(engine) as session:
+        statement = select(Transaction)
+        transactions = session.exec(statement)
+        outs = []
+        for transaction in transactions:
+            outs.append(transaction.taskID)
+        session.close()
+    return outs
+
+
+@app.on_event("startup")
+async def start_up():
+    SQLModel.metadata.create_all(engine)
+
 
 @app.get("/")
 async def index():
     return JSONResponse({"status": "ok"}, 200)
 
-@app.get("/task")
-async def create_task(request: Request):
-    try:
-        data = await request.json()
-        amount = float(data["amount"]) if "amount" in data else random.randrange(0, 10)
-        x = float(data["x"]) if "x" in data else random.randint(0, 100000000)
-        y = float(data["y"]) if "y" in data else random.randint(0, 100000000)
-        task = add.delay(amount, x, y)
-        return JSONResponse({"status": "ok", "taskId": task.id, "amount": amount, "x": x, "y": y}, 200)
-    except Exception:
-        amount = random.randrange(0, 25)
-        x = random.randint(0, 100000000)
-        y = random.randint(0, 100000000)
-        try:
-            task = add.delay(amount, x, y)
-            return JSONResponse({"status": "ok", "taskId": task.id, "amount": amount, "x": x, "y": y}, 200)
-        except Exception as e:
-            return JSONResponse({"status": "error", "message": str(e)})
 
-@app.post("/status")
-async def task_status(request: Request):
-    try:
-        data = await request.json()
-        if "taskID" not in data:
-            return JSONResponse({"status": "specify correct json body"}, 400)
-        task_id = data["taskID"]
-        res = AsyncResult(task_id)
-        return JSONResponse({"taskStatus": res.status}, 200)
-    except Exception:
-        return JSONResponse({"status": "invalid json body"}, 400)
+@app.post("/task")
+async def create_task(data: Data, request: Request, bg: BackgroundTasks):
+    task = add.delay(data.amount, data.x, data.y)
+    bg.add_task(insert_transaction, data.amount, data.x, data.y, dt.now())
+    return JSONResponse(
+        {
+            "taskId": task.id,
+            "amount": data.amount,
+            "x": data.x,
+            "y": data.y,
+        },
+        200,
+    )
 
-@app.post("/project")
-async def create_project(request: Request):
-    try:
-        data = await request.json()
-        if "username" not in data:
-            return JSONResponse({"status": "specify username in json body"}, 400)
-        if "projectname" not in data:
-            return JSONResponse({"status": "specify projectname in json body"}, 400)
-        return JSONResponse({"status": "ok"}, 200)
-    except Exception:
-        return JSONResponse({"status": "invalid json body"}, 400)
 
-@app.post("/user")
-async def create_user(request: Request):
-    try:
-        data = await request.json()
-        if "username" not in data:
-            return JSONResponse({"status": "specify username in json body"}, 400)
-        return JSONResponse({"status": "ok"}, 200)
-    except Exception:
-        return JSONResponse({"status": "invalid json body"}, 400)
+@app.get("/status/{task_id}")
+async def task_status(request: Request, task_id: str):
+    return JSONResponse({"taskStatus": AsyncResult(task_id).status}, 200)
 
-@app.post("/train")
-async def train(request: Request):
-    try:
-        data = await request.json()
-        if "userID" not in data:
-            return JSONResponse({"status": "specify userID in json body"}, 400)
-        if "projectID" not in data:
-            return JSONResponse({"status": "specify projectID in json body"}, 400)
-        return JSONResponse({"status": "ok"}, 200)
-    except Exception:
-        return JSONResponse({"status": "invalid json body"}, 400)
+
+@app.get("/output/{task_id}")
+async def task_output(request: Request, task_id: str):
+    return JSONResponse({"taskStatus": AsyncResult(task_id).result}, 200)
+
+
+@app.get("/transactions")
+async def transaction(request: Request):
+    outs = await read_transactions()
+    return JSONResponse(outs, 200)
