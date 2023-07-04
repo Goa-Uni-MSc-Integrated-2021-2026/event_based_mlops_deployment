@@ -62,7 +62,7 @@ async def index():
 @app.post("/task")
 async def create_task(data: Data, request: Request, bg: BackgroundTasks):
     task = add.delay(data.amount, data.x, data.y)
-    bg.add_task(insert_transaction, data.amount, data.x, data.y, dt.now())
+    bg.add_task(insert_transaction, task.id, data.amount, data.x, data.y, dt.now())
     return JSONResponse(
         {
             "taskId": task.id,
