@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.11.11
 
 COPY worker.requirements.txt requirements.txt
 RUN pip install --upgrade pip setuptools
