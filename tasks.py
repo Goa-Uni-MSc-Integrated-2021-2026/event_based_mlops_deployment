@@ -3,6 +3,8 @@ import time
 from celery import Celery
 from celery.utils.log import get_task_logger
 
+from models.whisper import transcribe
+
 RABBIT_USER: str = os.environ.get("RABBITMQ_DEFAULT_USER")
 RABBIT_PASS: str = os.environ.get("RABBITMQ_DEFAULT_PASS")
 RABBIT_HOST: str = os.environ.get("RABBITMQ_DEFAULT_HOST")
@@ -20,8 +22,8 @@ app = Celery(
 
 
 @app.task
-def add(sleep_time: int | float, x: int | float, y: int | float) -> int | float:
+def add(file_path:str) -> str:
     logger.info("Got Request - Starting work ")
-    time.sleep(sleep_time)
+    transcript = transcribe(file_path)
     logger.info("Work Finished ")
-    return x + y
+    return transcript
