@@ -6,3 +6,4 @@ python-logstash==0.4.8
 redis==4.3.4
 sqlmodel==0.0.8
 uvicorn==0.18.3
+openai-whisper==20240930
